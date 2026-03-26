@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./cortex.db"
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  linksFrom Link[] @relation("LinkFrom")
+  linksTo   Link[] @relation("LinkTo")
+}
+
+model Link {
+  id     String @id @default(cuid())
+  fromId String
+  toId   String
+
+  from Note @relation("LinkFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to   Note @relation("LinkTo",   fields: [toId],   references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId])
+}
