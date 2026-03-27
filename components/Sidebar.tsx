@@ -90,7 +90,7 @@ export function Sidebar({ open, onToggle, onFilterChange, hoveredId, onHover, se
   }
 
   return (
-    <aside className="w-64 shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden">
+    <aside className="w-64 shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden min-h-0">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-3 border-b border-slate-100">
         <button
