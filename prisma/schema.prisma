@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -8,15 +7,28 @@ datasource db {
   url      = "file:./cortex.db"
 }
 
-model Note {
-  id        String   @id @default(cuid())
-  title     String
-  body      String   @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Category {
+  id       String  @id @default(cuid())
+  name     String
+  color    String  @default("#6366f1")
+  parentId String?
 
-  linksFrom Link[] @relation("LinkFrom")
-  linksTo   Link[] @relation("LinkTo")
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  notes    Note[]
+}
+
+model Note {
+  id         String    @id @default(cuid())
+  title      String
+  body       String    @default("")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  categoryId String?
+
+  category  Category? @relation(fields: [categoryId], references: [id])
+  linksFrom Link[]    @relation("LinkFrom")
+  linksTo   Link[]    @relation("LinkTo")
 }
 
 model Link {

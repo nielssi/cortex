@@ -43,3 +43,10 @@ next-env.d.ts
 /app/generated/prisma
 prisma/*.db
 prisma/*.db-journal
+
+# user notes (local data)
+/notes/
+
+# local ML model cache and embedding cache
+/.hf-cache/
+.cortex-embeddings.json

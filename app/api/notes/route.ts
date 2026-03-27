@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   const notes = await prisma.note.findMany({
     orderBy: { updatedAt: "desc" },
-    select: { id: true, title: true, updatedAt: true },
+    select: { id: true, title: true, createdAt: true, updatedAt: true, categoryId: true },
   });
   return NextResponse.json(notes);
 }
