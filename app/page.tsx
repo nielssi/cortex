@@ -67,7 +67,7 @@ export default function HomePage() {
       />
 
       {panelOpen && (
-        <div className="w-[420px] shrink-0 border-r border-slate-200 flex flex-col overflow-hidden bg-white min-h-0">
+        <div className="w-[420px] shrink-0 border-r border-slate-200 flex flex-col overflow-hidden bg-white min-h-0 h-full">
           <TabBar
             tabs={openNotes}
             activeId={activeNoteId}

@@ -198,21 +198,29 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
   // Apply forces — sphere constraint runs last so it cleans up after all other forces
   useEffect(() => {
     if (!graphRef.current || graphData.nodes.length === 0) return;
-    const fg = graphRef.current;
-    fg.d3Force("charge", null);       // replaced by semantic repulsion
-    fg.d3Force("center", null);       // don't fight the sphere constraint
-    fg.d3Force("link")?.distance(55);
-    fg.d3Force("collision", forceCollide()
-      .radius((n: unknown) => nodeRadius((n as GraphNode).connections) + 3)
-      .strength(1)
-      .iterations(2)
-    );
-    if (embeddingsReady) {
-      fg.d3Force("semanticRepulsion", forceSemanticLayout(getSimilarity));
-    }
-    // Sphere constraint runs last — AFTER all other forces modify velocities
-    fg.d3Force("sphereConstraint", forceSphereConstraint());
-    fg.d3ReheatSimulation();
+    const applyForces = () => {
+      try {
+        const fg = graphRef.current;
+        if (!fg) return;
+        fg.d3Force("charge", null);       // replaced by semantic repulsion
+        fg.d3Force("center", null);       // don't fight the sphere constraint
+        fg.d3Force("link")?.distance(55);
+        fg.d3Force("collision", forceCollide()
+          .radius((n: unknown) => nodeRadius((n as GraphNode).connections) + 3)
+          .strength(1)
+          .iterations(2)
+        );
+        if (embeddingsReady) {
+          fg.d3Force("semanticRepulsion", forceSemanticLayout(getSimilarity));
+        }
+        // Sphere constraint runs last — AFTER all other forces modify velocities
+        fg.d3Force("sphereConstraint", forceSphereConstraint());
+        fg.d3ReheatSimulation();
+      } catch {
+        setTimeout(applyForces, 200);
+      }
+    };
+    applyForces();
   }, [graphData.nodes.length, embeddingsReady, getSimilarity]);
 
   useEffect(() => {

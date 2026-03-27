@@ -378,7 +378,7 @@ export function NotePanel({ id, onClose, onDeleted, onSelectNote, onSaved, onTit
 
             {/* Body */}
             {preview ? (
-              <div className="min-h-[40vh]">
+              <div>
                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={markdownComponents}>
                   {previewBody || "*Nothing here yet.*"}
                 </ReactMarkdown>
@@ -387,7 +387,7 @@ export function NotePanel({ id, onClose, onDeleted, onSelectNote, onSaved, onTit
               <div className="relative">
                 <textarea
                   ref={textareaRef}
-                  className="w-full min-h-[40vh] text-slate-700 bg-transparent border-none outline-none resize-none text-sm leading-relaxed placeholder:text-slate-300 font-mono"
+                  className="w-full min-h-[200px] text-slate-700 bg-transparent border-none outline-none resize-none text-sm leading-relaxed placeholder:text-slate-300 font-mono"
                   value={body}
                   onChange={handleBodyChange}
                   onKeyDown={(e) => {
