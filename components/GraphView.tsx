@@ -330,8 +330,8 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
           const tgtId = typeof link.target === "object" ? (link.target as GraphNode).id : String(link.target ?? "");
           return highlightIds!.has(srcId) && highlightIds!.has(tgtId) ? "#475569" : "#0f172a";
         }}
-        linkWidth={0.8}
-        linkOpacity={0.4}
+        linkWidth={1.8}
+        linkOpacity={0.7}
         onNodeClick={(node) => onSelectNote?.((node as GraphNode).id, (node as GraphNode).label)}
         onNodeDrag={handleNodeDrag}
         onNodeDragEnd={handleNodeDragEnd}
