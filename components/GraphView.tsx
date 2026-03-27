@@ -74,23 +74,33 @@ function forceSphereConstraint() {
   return force;
 }
 
-// Semantic repulsion: dissimilar notes repel harder, causing them to drift
-// to opposite regions of the sphere surface.
-function forceSemanticRepulsion(similarityFn: (a: string, b: string) => number) {
+// Semantic layout: similar notes attract into tight lakes, dissimilar ones
+// repel into separate regions, leaving clear empty space between clusters.
+function forceSemanticLayout(similarityFn: (a: string, b: string) => number) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let nodes: any[];
+  const CROSSOVER = 0.42; // below → repel, above → attract
+
   function force(alpha: number) {
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const ni = nodes[i], nj = nodes[j];
         const sim = similarityFn(ni.id, nj.id);
-        const strength = -(50 + (1 - Math.max(0, sim)) * 200);
+
         const dx = (ni.x ?? 0) - (nj.x ?? 0);
         const dy = (ni.y ?? 0) - (nj.y ?? 0);
         const dz = (ni.z ?? 0) - (nj.z ?? 0);
-        const dist2 = dx * dx + dy * dy + dz * dz || 1;
+        // Softened distance prevents blow-up when nodes overlap
+        const dist2 = dx * dx + dy * dy + dz * dz + 64;
         const dist = Math.sqrt(dist2);
-        const f = (strength * alpha) / dist2;
+
+        // Negative strength → nodes pulled toward each other (attraction)
+        // Positive strength → nodes pushed away (repulsion)
+        const strength = sim > CROSSOVER
+          ? -((sim - CROSSOVER) / (1 - CROSSOVER)) * 220 * alpha  // attract
+          :  ((CROSSOVER - sim) / CROSSOVER) * 280 * alpha;        // repel
+
+        const f = strength / dist2;
         ni.vx = (ni.vx ?? 0) + (f * dx) / dist;
         ni.vy = (ni.vy ?? 0) + (f * dy) / dist;
         ni.vz = (ni.vz ?? 0) + (f * dz) / dist;
@@ -100,6 +110,7 @@ function forceSemanticRepulsion(similarityFn: (a: string, b: string) => number) 
       }
     }
   }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   force.initialize = (n: any[]) => { nodes = n; };
   return force;
@@ -190,14 +201,14 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
     const fg = graphRef.current;
     fg.d3Force("charge", null);       // replaced by semantic repulsion
     fg.d3Force("center", null);       // don't fight the sphere constraint
-    fg.d3Force("link")?.distance(90);
+    fg.d3Force("link")?.distance(55);
     fg.d3Force("collision", forceCollide()
-      .radius((n: unknown) => nodeRadius((n as GraphNode).connections) + 20)
-      .strength(0.9)
-      .iterations(3)
+      .radius((n: unknown) => nodeRadius((n as GraphNode).connections) + 3)
+      .strength(1)
+      .iterations(2)
     );
     if (embeddingsReady) {
-      fg.d3Force("semanticRepulsion", forceSemanticRepulsion(getSimilarity));
+      fg.d3Force("semanticRepulsion", forceSemanticLayout(getSimilarity));
     }
     // Sphere constraint runs last — AFTER all other forces modify velocities
     fg.d3Force("sphereConstraint", forceSphereConstraint());
@@ -206,7 +217,7 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
 
   useEffect(() => {
     if (!embeddingsReady || !graphRef.current) return;
-    graphRef.current.d3Force("semanticRepulsion", forceSemanticRepulsion(getSimilarity));
+    graphRef.current.d3Force("semanticRepulsion", forceSemanticLayout(getSimilarity));
     graphRef.current.d3ReheatSimulation();
   }, [embeddingsReady, getSimilarity]);
 
