@@ -61,6 +61,7 @@ export default function HomePage() {
         onToggle={() => setSidebarOpen((v) => !v)}
         onFilterChange={setHighlightIds}
         hoveredId={hoveredId}
+        onHover={setHoveredId}
         selectedNoteId={activeNoteId}
         onSelectNote={handleSelectNote}
       />

@@ -17,11 +17,12 @@ interface SidebarProps {
   onToggle: () => void;
   onFilterChange: (matchingIds: Set<string> | null) => void;
   hoveredId?: string | null;
+  onHover?: (id: string | null) => void;
   selectedNoteId?: string | null;
   onSelectNote?: (id: string) => void;
 }
 
-export function Sidebar({ open, onToggle, onFilterChange, hoveredId, selectedNoteId, onSelectNote }: SidebarProps) {
+export function Sidebar({ open, onToggle, onFilterChange, hoveredId, onHover, selectedNoteId, onSelectNote }: SidebarProps) {
   const router = useRouter();
   const [notes, setNotes] = useState<NoteStub[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -155,6 +156,8 @@ export function Sidebar({ open, onToggle, onFilterChange, hoveredId, selectedNot
               <button
                 key={n.id}
                 onClick={() => onSelectNote?.(n.id, n.title)}
+                onMouseEnter={() => onHover?.(n.id)}
+                onMouseLeave={() => onHover?.(null)}
                 className={`w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all group ${isSelected ? "bg-indigo-50" : "hover:bg-slate-50"}`}
                 style={{ opacity: hoveredId && hoveredId !== n.id ? 0.2 : 1 }}
               >
