@@ -186,11 +186,13 @@ export function Sidebar({ open, onToggle, onFilterChange, hoveredId, onHover, se
           href="/api/export"
           download
           className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors"
-          title="Export all notes"
+          title="Export all notes as JSON"
         >
           <Download size={13} /> Export
         </a>
-        <label className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors cursor-pointer ml-auto" title="Import from export file">
+
+        {/* Import Cortex JSON */}
+        <label className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors cursor-pointer" title="Import Cortex JSON export">
           <Upload size={13} /> Import
           <input
             type="file"
@@ -208,6 +210,32 @@ export function Sidebar({ open, onToggle, onFilterChange, hoveredId, onHover, se
               const result = await res.json();
               if (result.ok) {
                 alert(`Imported ${result.imported.notes} notes, ${result.imported.categories} categories.`);
+                window.location.reload();
+              } else {
+                alert(`Import failed: ${result.error}`);
+              }
+              e.target.value = "";
+            }}
+          />
+        </label>
+
+        {/* Import .md files */}
+        <label className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors cursor-pointer ml-auto" title="Import markdown files (supports multiple)">
+          <Upload size={13} /> .md
+          <input
+            type="file"
+            accept=".md"
+            multiple
+            className="hidden"
+            onChange={async (e) => {
+              const files = Array.from(e.target.files ?? []);
+              if (!files.length) return;
+              const fd = new FormData();
+              for (const f of files) fd.append("files", f);
+              const res = await fetch("/api/import/md", { method: "POST", body: fd });
+              const result = await res.json();
+              if (result.ok) {
+                alert(`Imported ${result.imported} note${result.imported !== 1 ? "s" : ""} with ${result.links} connection${result.links !== 1 ? "s" : ""}.`);
                 window.location.reload();
               } else {
                 alert(`Import failed: ${result.error}`);
