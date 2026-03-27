@@ -11,7 +11,7 @@ type GraphLink = { source: string | GraphNode; target: string | GraphNode };
 type GraphData = { nodes: GraphNode[]; links: GraphLink[] };
 
 const POSITIONS_KEY = "cortex-node-positions";
-const SNAP_RADIUS = 28; // units in 3D space
+const SNAP_RADIUS = 45; // units in 3D space
 
 function loadPositions(): Record<string, { x: number; y: number; z: number }> {
   try { return JSON.parse(localStorage.getItem(POSITIONS_KEY) ?? "{}"); } catch { return {}; }
@@ -104,8 +104,10 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
   const simCacheRef = useRef<Record<string, number>>({});
   const [embeddingsReady, setEmbeddingsReady] = useState(false);
 
-  // Drag-to-connect state
+  // Drag-to-connect state — use a ref as source-of-truth so drag-end callbacks
+  // always read the live value regardless of React's closure/batching behaviour.
   const [snapTargetId, setSnapTargetId] = useState<string | null>(null);
+  const snapTargetIdRef = useRef<string | null>(null);
   const dragSourceRef = useRef<GraphNode | null>(null);
 
   useEffect(() => setMounted(true), []);
@@ -242,12 +244,14 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
       }
     }
 
+    snapTargetIdRef.current = nearest?.id ?? null;
     setSnapTargetId(nearest?.id ?? null);
   }, []);
 
   const handleNodeDragEnd = useCallback(async (node: unknown) => {
     const n = node as GraphNode;
-    const target = snapTargetId;
+    const target = snapTargetIdRef.current; // ref avoids stale closure
+    snapTargetIdRef.current = null;
     setSnapTargetId(null);
     dragSourceRef.current = null;
 
@@ -278,7 +282,7 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
     }
 
     refreshGraph();
-  }, [snapTargetId, refreshGraph]);
+  }, [refreshGraph]);
 
   const handleLinkClick = useCallback(async (link: unknown) => {
     const l = link as GraphLink;
