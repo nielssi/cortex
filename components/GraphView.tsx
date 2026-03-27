@@ -171,11 +171,11 @@ export function GraphView({ highlightIds, hoveredId, onHover, onSelectNote }: Gr
     // Disable default charge (we'll use semantic repulsion instead when ready)
     fg.d3Force("charge")?.strength(embeddingsReady ? 0 : -120);
 
-    fg.d3Force("link")?.distance(60);
+    fg.d3Force("link")?.distance(90);
     fg.d3Force(
       "collision",
       forceCollide()
-        .radius((n: unknown) => nodeRadius((n as GraphNode).connections) + 8)
+        .radius((n: unknown) => nodeRadius((n as GraphNode).connections) + 22)
         .strength(1)
         .iterations(2)
     );
