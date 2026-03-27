@@ -98,7 +98,7 @@ export function NotePanel({ id, onClose, onDeleted, onSelectNote, onSaved, onTit
   const [allNotes, setAllNotes] = useState<NoteStub[]>([]);
   const [linkSearch, setLinkSearch] = useState("");
   const [showCategoryPanel, setShowCategoryPanel] = useState(false);
-  const [preview, setPreview] = useState(false);
+  const [preview, setPreview] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [newCatName, setNewCatName] = useState("");
