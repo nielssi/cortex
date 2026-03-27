@@ -90,7 +90,7 @@ export function Sidebar({ open, onToggle, onFilterChange, hoveredId, onHover, se
   }
 
   return (
-    <aside className="w-64 shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden min-h-0">
+    <aside className="w-64 shrink-0 border-r border-slate-200 bg-white flex flex-col h-full min-h-0 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-3 border-b border-slate-100">
         <button
@@ -118,7 +118,7 @@ export function Sidebar({ open, onToggle, onFilterChange, hoveredId, onHover, se
       </div>
 
       {/* Categories */}
-      <div className="px-3 py-3 border-b border-slate-100">
+      <div className="px-3 py-3 border-b border-slate-100 overflow-y-auto max-h-48 shrink-0">
         <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Categories</p>
         <div className="flex flex-col gap-1">
           {flat.map((c) => {
